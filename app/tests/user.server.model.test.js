@@ -66,8 +66,54 @@ describe('User Model Unit Tests:', function() {
 			return user.save(function(err) {
 				should.exist(err);
 				done();
+                user.firstName = 'Full';
 			});
 		});
+
+        it('should be able to show an error when try to save without last name', function(done) {
+            user.lastName = '';
+            return user.save(function(err) {
+                should.exist(err);
+                done();
+                user.lastName = 'Name';
+            });
+        });
+
+        it('should be able to show an error when try to save without username', function(done) {
+            user.username = '';
+            return user.save(function(err) {
+                should.exist(err);
+                done();
+                user.username = 'username';
+            });
+        });
+
+        it('should be able to show an error when try to save without password', function(done) {
+            user.password = '';
+            return user.save(function(err) {
+                should.exist(err);
+                done();
+                user.password = 'password';
+            });
+        });
+
+        it('should be able to show an error when try to save without e-mail', function(done) {
+            user.email = '';
+            return user.save(function(err) {
+                should.exist(err);
+                done();
+                user.email = 'test@test.com';
+            });
+        });
+
+        it('should be able to show an error when password length less than 7 characters', function(done) {
+            user.password = '123456';
+            return user.save(function(err) {
+                should.exist(err);
+                done();
+                user.password = 'password';
+            });
+        });
 	});
 
 	after(function(done) {
