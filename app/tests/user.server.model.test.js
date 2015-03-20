@@ -18,19 +18,13 @@ var user, user2;
 describe('User Model Unit Tests:', function() {
 	before(function(done) {
 		user = new User({
-			firstName: 'Full',
-			lastName: 'Name',
-			displayName: 'Full Name',
-			email: 'test@test.com',
+			displayName: 'username',
 			username: 'username',
 			password: 'password',
 			provider: 'local'
 		});
 		user2 = new User({
-			firstName: 'Full',
-			lastName: 'Name',
-			displayName: 'Full Name',
-			email: 'test@test.com',
+			displayName: 'username',
 			username: 'username',
 			password: 'password',
 			provider: 'local'
@@ -61,24 +55,6 @@ describe('User Model Unit Tests:', function() {
 			});
 		});
 
-		it('should be able to show an error when try to save without first name', function(done) {
-			user.firstName = '';
-			return user.save(function(err) {
-				should.exist(err);
-				done();
-                user.firstName = 'Full';
-			});
-		});
-
-        it('should be able to show an error when try to save without last name', function(done) {
-            user.lastName = '';
-            return user.save(function(err) {
-                should.exist(err);
-                done();
-                user.lastName = 'Name';
-            });
-        });
-
         it('should be able to show an error when try to save without username', function(done) {
             user.username = '';
             return user.save(function(err) {
@@ -94,15 +70,6 @@ describe('User Model Unit Tests:', function() {
                 should.exist(err);
                 done();
                 user.password = 'password';
-            });
-        });
-
-        it('should be able to show an error when try to save without e-mail', function(done) {
-            user.email = '';
-            return user.save(function(err) {
-                should.exist(err);
-                done();
-                user.email = 'test@test.com';
             });
         });
 
