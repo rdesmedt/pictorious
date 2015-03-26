@@ -3,25 +3,26 @@
 /**
  * Module dependencies.
  */
-var fs = require('fs'),
-	http = require('http'),
-	https = require('https'),
-	express = require('express'),
-	morgan = require('morgan'),
-	bodyParser = require('body-parser'),
-	session = require('express-session'),
-	compress = require('compression'),
-	methodOverride = require('method-override'),
-	cookieParser = require('cookie-parser'),
-	helmet = require('helmet'),
-	passport = require('passport'),
-	mongoStore = require('connect-mongo')({
+var fs              = require('fs'),
+	http            = require('http'),
+	https           = require('https'),
+	express         = require('express'),
+	morgan          = require('morgan'),
+	bodyParser      = require('body-parser'),
+	session         = require('express-session'),
+	compress        = require('compression'),
+	methodOverride  = require('method-override'),
+	cookieParser    = require('cookie-parser'),
+	helmet          = require('helmet'),
+	passport        = require('passport'),
+	mongoStore      = require('connect-mongo')({
 		session: session
 	}),
-	flash = require('connect-flash'),
-	config = require('./config'),
-	consolidate = require('consolidate'),
-	path = require('path');
+	flash           = require('connect-flash'),
+	config          = require('./config'),
+	consolidate     = require('consolidate'),
+	path            = require('path'),
+    multer          = require('multer');
 
 module.exports = function(db) {
 	// Initialize express app
@@ -71,8 +72,26 @@ module.exports = function(db) {
 
 		// Disable views cache
 		app.set('view cache', false);
+
+        //get date parameter for path
+        var today = new Date();
+        var pathPicture = today.getFullYear() + '/' +
+                        ('0' + (today.getMonth()+1)).slice(-2) + '/' +
+                        ('0' + today.getDate()).slice(-2) + '/';
+
+        // Multer initialisation on development folder
+        app.use(multer({ dest: './dataDisk/devPictures/' + pathPicture}));
 	} else if (process.env.NODE_ENV === 'production') {
 		app.locals.cache = 'memory';
+        // Multer initialisation on production folder
+
+        //get date parameter for path
+        var today = new Date();
+        var pathPicture = today.getFullYear() + '/' +
+            ('0' + (today.getMonth()+1)).slice(-2) + '/' +
+            ('0' + today.getDate()).slice(-2) + '/';
+
+        app.use(multer({ dest: './dataDisk/pictures/' + pathPicture}));
 	}
 
 	// Request body parsing middleware should be above methodOverride
