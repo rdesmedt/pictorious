@@ -74,13 +74,13 @@ module.exports = function(db) {
 		app.set('view cache', false);
 
         //get date parameter for path
-        var today = new Date();
-        var pathPicture = today.getFullYear() + '/' +
-                        ('0' + (today.getMonth()+1)).slice(-2) + '/' +
-                        ('0' + today.getDate()).slice(-2) + '/';
+        var todayDev = new Date();
+        var pathPictureDev = todayDev.getFullYear() + '/' +
+                        ('0' + (todayDev.getMonth()+1)).slice(-2) + '/' +
+                        ('0' + todayDev.getDate()).slice(-2) + '/';
 
         // Multer initialisation on development folder
-        app.use(multer({ dest: './dataDisk/devPictures/' + pathPicture}));
+        app.use(multer({ dest: './dataDisk/devPictures/' + pathPictureDev}));
 	} else if (process.env.NODE_ENV === 'production') {
 		app.locals.cache = 'memory';
         // Multer initialisation on production folder
