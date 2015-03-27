@@ -10,3 +10,4 @@ app/tests/coverage/
 temp/
 test-results.xml
 mocha.json
+dataDisk/

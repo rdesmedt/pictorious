@@ -13,8 +13,12 @@ var mongoose = require('mongoose'),
  */
 exports.create = function(req, res) {
 	var picture = new Picture();
-    picture.name = req.files.file.name;
-    picture.path = req.files.file.path;
+    if(req.body.path){
+        picture = req.body;
+    }else {
+        picture.name = req.body.picTitle;
+        picture.path = req.files.file.path;
+    }
 
 	picture.user = req.user;
 

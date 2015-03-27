@@ -7,11 +7,11 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 	function($scope, $stateParams, $location, $upload, $timeout, Authentication, Pictures) {
 		$scope.authentication = Authentication;
 
+        //preload picture and show preview thumb
         $scope.generateThumb = function(file) {
             if (file != null) {
                 console.log(file.type.indexOf('image'));
                 if (file.type.indexOf('image') > -1) {
-                    console.log('GENERATE THUMB HIT: ' + file);
                     $timeout(function() {
                         var fileReader = new FileReader();
                         fileReader.readAsDataURL(file);
@@ -25,42 +25,24 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
             }
         };
 
-        $scope.uploadPic = function(files){
-            console.log('UPLOAD GEHIT!');
+        // save picture to server
+        $scope.uploadPic = function(files, picName){
+            console.log('UPLOAD GEHIT!: ' + picName);
             if (files && files.length) {
                     var file = files[0];
-                    console.log(file);
                     $upload.upload({
                         url: '/pictures',
+                        fields: {'picTitle': picName},
                         file: file
                     }).progress(function (evt) {
                         var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
                         console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
                     }).success(function (data, status, headers, config) {
                         console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
-                        $location.path('pictures')
+                        $location.path('pictures');
                     });
             }
         };
-
-		// Create new Picture
-		$scope.create = function() {
-            console.log('CREATE GEHIT!');
-			// Create new Picture object
-			var picture = new Pictures ({
-				name: this.name
-			});
-
-			// Redirect after save
-			picture.$save(function(response) {
-				$location.path('pictures/' + response._id);
-
-				// Clear form fields
-				$scope.name = '';
-			}, function(errorResponse) {
-				$scope.error = errorResponse.data.message;
-			});
-		};
 
 		// Remove existing Picture
 		$scope.remove = function(picture) {
