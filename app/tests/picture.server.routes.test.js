@@ -11,11 +11,13 @@ var should = require('should'),
 /**
  * Globals
  */
-var credentials, user, picture;
+var credentials, user, picture, boundary;
 
 /**
  * Picture routes tests
  */
+
+
 describe('Picture CRUD tests', function() {
 	beforeEach(function(done) {
 		// Create user credentials
@@ -31,6 +33,8 @@ describe('Picture CRUD tests', function() {
 			password: credentials.password,
 			provider: 'local'
 		});
+
+        boundary = Math.random();
 
 		// Save a user to the test db and create new Picture
 		user.save(function() {
@@ -56,7 +60,8 @@ describe('Picture CRUD tests', function() {
 
 				// Save a new Picture
 				agent.post('/pictures')
-					.send(picture)
+                    .field('extra_info', '{"picTitle": "Picture Title"}')
+                    .attach('file', '/Users/Roeland/Documents/C4J/StageProject/app/tests/img/noel.jpg')
 					.expect(200)
 					.end(function(pictureSaveErr, pictureSaveRes) {
 						// Handle Picture save error
@@ -263,4 +268,7 @@ describe('Picture CRUD tests', function() {
 		Picture.remove().exec();
 		done();
 	});
+
 });
+
+

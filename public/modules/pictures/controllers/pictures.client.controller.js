@@ -9,7 +9,7 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 
         //preload picture and show preview thumb
         $scope.generateThumb = function(file) {
-            if (file != null) {
+            if (file) {
                 console.log(file.type.indexOf('image'));
                 if (file.type.indexOf('image') > -1) {
                     $timeout(function() {
@@ -30,6 +30,7 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
             console.log('UPLOAD GEHIT!: ' + picName);
             if (files && files.length) {
                     var file = files[0];
+                console.log(file);
                     $upload.upload({
                         url: '/pictures',
                         fields: {'picTitle': picName},

@@ -80,7 +80,7 @@ module.exports = function(db) {
                         ('0' + todayDev.getDate()).slice(-2) + '/';
 
         // Multer initialisation on development folder
-        app.use(multer({ dest: './dataDisk/devPictures/' + pathPictureDev}));
+        app.use(multer({ dest: './dataDisk/devPictures/' + pathPictureDev}));//pathpicturedev pas setten bij upload
 	} else if (process.env.NODE_ENV === 'production') {
 		app.locals.cache = 'memory';
         // Multer initialisation on production folder
