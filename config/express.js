@@ -80,7 +80,11 @@ module.exports = function(db) {
                         ('0' + todayDev.getDate()).slice(-2) + '/';
 
         // Multer initialisation on development folder
-        app.use(multer({ dest: './dataDisk/devPictures/' + pathPictureDev}));//pathpicturedev pas setten bij upload
+        app.use(multer({
+            dest: './dataDisk/devPictures/',
+            rename: function (fieldname, filename){
+                return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
+            }}));//pathpicturedev pas setten bij upload
 	} else if (process.env.NODE_ENV === 'production') {
 		app.locals.cache = 'memory';
         // Multer initialisation on production folder
@@ -91,8 +95,16 @@ module.exports = function(db) {
             ('0' + (today.getMonth()+1)).slice(-2) + '/' +
             ('0' + today.getDate()).slice(-2) + '/';
 
-        app.use(multer({ dest: './dataDisk/pictures/' + pathPicture}));
-	}
+        app.use(multer({ dest: './dataDisk/pictures/',
+            rename: function (fieldname, filename){
+                return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
+            }}));
+	} else if (process.env.NODE_ENV === 'test'){
+        app.use(multer({ dest: './dataDisk/testPictures/',
+            rename: function (fieldname, filename){
+                return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
+            }}));
+    }
 
 	// Request body parsing middleware should be above methodOverride
 	app.use(bodyParser.urlencoded({

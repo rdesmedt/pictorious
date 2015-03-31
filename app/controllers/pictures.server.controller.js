@@ -12,7 +12,6 @@ var mongoose = require('mongoose'),
  * Create a Picture
  */
 exports.create = function(req, res) {
-	console.log(req);
     var picture = new Picture();
 
     picture.name = req.body.picTitle;

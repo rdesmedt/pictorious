@@ -39,8 +39,8 @@ describe('Picture CRUD tests', function() {
 		// Save a user to the test db and create new Picture
 		user.save(function() {
 			picture = {
-				name: 'Picture Name',
-                path: '/year/month/day/hash.jpg'
+				name: 'Picture Title',
+                path: __dirname + '/img/noel.jpg'
 			};
 
 			done();
@@ -48,6 +48,8 @@ describe('Picture CRUD tests', function() {
 	});
 
 	it('should be able to save Picture instance if logged in', function(done) {
+
+
 		agent.post('/auth/signin')
 			.send(credentials)
 			.expect(200)
@@ -60,11 +62,13 @@ describe('Picture CRUD tests', function() {
 
 				// Save a new Picture
 				agent.post('/pictures')
-                    .field('extra_info', '{"picTitle": "Picture Title"}')
-                    .attach('file', '/Users/Roeland/Documents/C4J/StageProject/app/tests/img/noel.jpg')
-					.expect(200)
+                    .set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .attach('file', __dirname + '/img/noel.jpg')
 					.end(function(pictureSaveErr, pictureSaveRes) {
 						// Handle Picture save error
+                        console.log(pictureSaveErr);
 						if (pictureSaveErr) done(pictureSaveErr);
 
 						// Get a list of Pictures
@@ -78,10 +82,10 @@ describe('Picture CRUD tests', function() {
 
 								// Set assertions
 								(pictures[0].user._id).should.equal(userId);
-								(pictures[0].name).should.match('Picture Name');
+								(pictures[0].name).should.match('Picture Title');
 
 								// Call the assertion callback
-								done();
+								return done();
 							});
 					});
 			});
@@ -89,8 +93,11 @@ describe('Picture CRUD tests', function() {
 
 	it('should not be able to save Picture instance if not logged in', function(done) {
 		agent.post('/pictures')
-			.send(picture)
-			.expect(401)
+            .set('Connection', 'keep alive')
+            .set('Content-Type', 'application/x-www-form-urlencoded')
+            .field('picTitle', 'Picture Title')
+            .attach('file', __dirname + '/img/noel.jpg')
+            .expect(401)
 			.end(function(pictureSaveErr, pictureSaveRes) {
 				// Call the assertion callback
 				done(pictureSaveErr);
@@ -113,7 +120,10 @@ describe('Picture CRUD tests', function() {
 
 				// Save a new Picture
 				agent.post('/pictures')
-					.send(picture)
+                    .set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', '')
+                    .attach('file', __dirname + '/img/noel.jpg')
 					.expect(400)
 					.end(function(pictureSaveErr, pictureSaveRes) {
 						// Set message assertion
@@ -138,7 +148,10 @@ describe('Picture CRUD tests', function() {
 
 				// Save a new Picture
 				agent.post('/pictures')
-					.send(picture)
+                    .set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .attach('file', __dirname + '/img/noel.jpg')
 					.expect(200)
 					.end(function(pictureSaveErr, pictureSaveRes) {
 						// Handle Picture save error
@@ -216,7 +229,10 @@ describe('Picture CRUD tests', function() {
 
 				// Save a new Picture
 				agent.post('/pictures')
-					.send(picture)
+                    .set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .attach('file', __dirname + '/img/noel.jpg')
 					.expect(200)
 					.end(function(pictureSaveErr, pictureSaveRes) {
 						// Handle Picture save error
