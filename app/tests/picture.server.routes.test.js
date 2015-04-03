@@ -85,7 +85,7 @@ describe('Picture CRUD tests', function() {
 								(pictures[0].name).should.match('Picture Title');
 
 								// Call the assertion callback
-								return done();
+								done();
 							});
 					});
 			});
