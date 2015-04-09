@@ -1,4 +1,4 @@
-<section data-ng-controller="HomeController">
+<section data-ng-controller="HomeController" data-ng-init="find()">
 	<div class="jumbotron text-center">
 		<div class="row">
 			<div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-12">
@@ -15,4 +15,18 @@
             <p>Welcome <span data-ng-bind="authentication.user.displayName"></span></p>
         </div>
 	</div>
+    <div class="list-group">
+        <a data-ng-repeat="picture in pictures" data-ng-href="#!/pictures/{{picture._id}}" class="list-group-item">
+            <small class="list-group-item-text">
+                Posted on
+                <span data-ng-bind="picture.created | date:'medium'"></span>
+                by
+                <span data-ng-bind="picture.user.displayName"></span><br>
+                Tags:
+                <span ng-repeat="tag in picture.tags">{{tag.tag}}&nbsp;</span>
+            </small>
+            <h4 class="list-group-item-heading" data-ng-bind="picture.name"></h4>
+            <img ng-src="/{{picture.path}}" class="img-thumbnail" style="max-width: 125px;">
+        </a>
+    </div>
 </section>

@@ -16,6 +16,12 @@
 			<span data-ng-bind="picture.created | date:'mediumDate'"></span>
 			by
 			<span data-ng-bind="picture.user.displayName"></span>
+            <br>
+            Tags:
+            <span ng-repeat="tag in picture.tags">{{tag.tag}}&nbsp;</span>
 		</em>
 	</small>
+    <div>
+        <img ng-src="/{{picture.path}}" class="img-thumbnail">
+    </div>
 </section>

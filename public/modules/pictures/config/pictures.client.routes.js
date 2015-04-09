@@ -20,6 +20,9 @@ angular.module('pictures').config(['$stateProvider',
 		state('editPicture', {
 			url: '/pictures/:pictureId/edit',
 			templateUrl: 'modules/pictures/views/edit-picture.client.view.html'
-		});
+		}).
+        state('listTags', {
+                url: '/pictureTags'
+            });
 	}
 ]);

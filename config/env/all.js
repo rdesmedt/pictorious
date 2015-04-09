@@ -15,6 +15,8 @@ module.exports = {
 			css: [
 				'public/lib/bootstrap/dist/css/bootstrap.css',
 				'public/lib/bootstrap/dist/css/bootstrap-theme.css',
+                'public/lib/ng-tags-input/ng-tags-input.bootstrap.css',
+                'public/lib/ng-tags-input/ng-tags-input.css'
 			],
 			js: [
 				'public/lib/angular/angular.js',
@@ -27,7 +29,8 @@ module.exports = {
 				'public/lib/angular-ui-utils/ui-utils.js',
 				'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
                 'public/lib/ng-file-upload-shim/angular-file-upload-shim.js', //non html5 browsers
-                'public/lib/ng-file-upload/angular-file-upload.js'
+                'public/lib/ng-file-upload/angular-file-upload.js',
+                'public/lib/ng-tags-input/ng-tags-input.js'
 			]
 		},
 		css: [

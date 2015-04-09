@@ -6,7 +6,9 @@
 var mongoose = require('mongoose'),
 	errorHandler = require('./errors.server.controller'),
 	Picture = mongoose.model('Picture'),
-	_ = require('lodash');
+    Tag = mongoose.model('Tag'),
+	_ = require('lodash'),
+    async = require('async');
 
 /**
  * Create a Picture
@@ -14,23 +16,56 @@ var mongoose = require('mongoose'),
 exports.create = function(req, res) {
     var picture = new Picture();
 
-    picture.name = req.body.picTitle;
-    picture.path = req.files.file.path;
+    var tags = JSON.parse(req.body.tags);
+
+    //Saving new tags tot Tag db
+    async.filter(tags,function(item, callback){
+            var tg = new Tag();
+            tg.tag = item.name;
+            Tag.findOne({
+                    tag: tg.tag
+                },
+                function(err, tag){
+                    if (!err){
+                        if (!tag){
+                            tg.save(function (err) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    console.log('Save: ' + tg);
+                                    picture.tags.push(tg._id);
+                                    return callback(false);
+                                }
+                            });
+                        } else {
+                            console.log('Tag found: ' + tag);
+                            picture.tags.push(tag._id);
+                            return callback(true);
+                        }
+                    }
+
+                });
+    },
+    function(results){
+        console.log('PICTURE TAG IDS: ' + picture.tags);
+
+        picture.name = req.body.picTitle;
+        picture.path = req.files.file.path;
+        picture.user = req.user;
+
+        picture.save(function(err) {
+            if (err) {
+                return res.status(400).send({
+                    message: errorHandler.getErrorMessage(err)
+                });
+            } else {
+                res.jsonp(picture);
+            }
+        });
+    });
 
 
-	picture.user = req.user;
 
-    console.log(picture);
-
-	picture.save(function(err) {
-		if (err) {
-			return res.status(400).send({
-				message: errorHandler.getErrorMessage(err)
-			});
-		} else {
-			res.jsonp(picture);
-		}
-	});
 };
 
 /**
@@ -80,12 +115,17 @@ exports.delete = function(req, res) {
  * List of Pictures
  */
 exports.list = function(req, res) { 
-	Picture.find().sort('-created').populate('user', 'displayName').exec(function(err, pictures) {
+	Picture
+        .find()
+        .sort('-created')
+        .populate('user tags', 'displayName tag')
+        .exec(function(err, pictures) {
 		if (err) {
 			return res.status(400).send({
 				message: errorHandler.getErrorMessage(err)
 			});
 		} else {
+            console.log('LIST OF PICTURES: ' + pictures);
 			res.jsonp(pictures);
 		}
 	});
@@ -95,11 +135,15 @@ exports.list = function(req, res) {
  * Picture middleware
  */
 exports.pictureByID = function(req, res, next, id) { 
-	Picture.findById(id).populate('user', 'displayName').exec(function(err, picture) {
-		if (err) return next(err);
-		if (! picture) return next(new Error('Failed to load Picture ' + id));
-		req.picture = picture ;
-		next();
+	Picture
+        .findById(id)
+        .populate('user tags', 'displayName tag')
+        .exec(function(err, picture) {
+            if (err) return next(err);
+            if (! picture) return next(new Error('Failed to load Picture ' + id));
+            req.picture = picture ;
+            console.log('PICTURE DETAIL: ' + picture);
+            next();
 	});
 };
 
@@ -111,4 +155,24 @@ exports.hasAuthorization = function(req, res, next) {
 		return res.status(403).send('User is not authorized');
 	}
 	next();
+};
+
+/**
+ * List of Tags
+ */
+exports.tagList = function(req, res) {
+    console.log('TAGLIST SEARCH HIT');
+    Tag
+        .find()
+        .sort('-created')
+        .exec(function(err, tags) {
+            if (err) {
+                return res.status(400).send({
+                    message: errorHandler.getErrorMessage(err)
+                });
+            } else {
+                console.log('LIST OF TAGS: ' + tags);
+                res.jsonp(tags);
+            }
+        });
 };

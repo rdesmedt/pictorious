@@ -28,6 +28,7 @@ describe('Picture Model Unit Tests:', function() {
 			picture = new Picture({
 				name: 'Picture Name',
                 path: '/year/month/day/hash.jpg',
+                tags: ['tag1', 'tag2', 'tag3'],
 				user: user
 			});
 
@@ -55,6 +56,16 @@ describe('Picture Model Unit Tests:', function() {
         it('should be able to show an error when try to save without path', function(done) {
             picture.name = 'Picture name';
             picture.path = '';
+
+            return picture.save(function(err) {
+                should.exist(err);
+                done();
+            });
+        });
+
+        it('should be able to show an error when try to save without tag', function(done) {
+            picture.tags = [];
+            picture.path = '/year/month/day/hash.jpg';
 
             return picture.save(function(err) {
                 should.exist(err);

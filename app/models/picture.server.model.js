@@ -22,13 +22,15 @@ var PictureSchema = new Schema({
         required: 'Path not set',
         trim: true
     },
+    tags: [{type: Schema.ObjectId, ref: 'Tag'}
+    ],
     upvote: [{
-        type: Schema.ObjectId,
-        ref: 'User'
+        user: {type: Schema.ObjectId, ref: 'User'},
+        date: {type: Date, default: Date.now}
     }],
     downvote: [{
-        type: Schema.ObjectId,
-        ref: 'User'
+        user: {type: Schema.ObjectId, ref: 'User'},
+        date: {type: Date, default: Date.now}
     }],
 	created: {
 		type: Date,

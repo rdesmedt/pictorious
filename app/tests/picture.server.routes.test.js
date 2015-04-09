@@ -40,7 +40,8 @@ describe('Picture CRUD tests', function() {
 		user.save(function() {
 			picture = {
 				name: 'Picture Title',
-                path: __dirname + '/img/noel.jpg'
+                path: __dirname + '/img/noel.jpg',
+                tags: ['tag1','tag2','tag3']
 			};
 
 			done();
@@ -65,6 +66,7 @@ describe('Picture CRUD tests', function() {
                     .set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', 'Picture Title')
+                    .field('tags', picture.tags)
                     .attach('file', __dirname + '/img/noel.jpg')
 					.end(function(pictureSaveErr, pictureSaveRes) {
 						// Handle Picture save error
@@ -96,6 +98,7 @@ describe('Picture CRUD tests', function() {
             .set('Connection', 'keep alive')
             .set('Content-Type', 'application/x-www-form-urlencoded')
             .field('picTitle', 'Picture Title')
+            .field('tags', picture.tags)
             .attach('file', __dirname + '/img/noel.jpg')
             .expect(401)
 			.end(function(pictureSaveErr, pictureSaveRes) {
@@ -123,6 +126,7 @@ describe('Picture CRUD tests', function() {
                     .set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', '')
+                    .field('tags', picture.tags)
                     .attach('file', __dirname + '/img/noel.jpg')
 					.expect(400)
 					.end(function(pictureSaveErr, pictureSaveRes) {
@@ -134,6 +138,39 @@ describe('Picture CRUD tests', function() {
 					});
 			});
 	});
+
+    it('should not be able to save Picture instance if no tag is provided', function(done) {
+        // Invalidate name field
+        picture.name = 'Picture Title';
+        picture.tags = [];
+
+        agent.post('/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function(signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) done(signinErr);
+
+                // Get the userId
+                var userId = user.id;
+
+                // Save a new Picture
+                agent.post('/pictures')
+                    .set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', '')
+                    .field('tags', picture.tags)
+                    .attach('file', __dirname + '/img/noel.jpg')
+                    .expect(400)
+                    .end(function(pictureSaveErr, pictureSaveRes) {
+                        // Set message assertion
+                        (pictureSaveRes.body.message).should.match('Please fill Picture name');
+
+                        // Handle Picture save error
+                        done(pictureSaveErr);
+                    });
+            });
+    });
 
 	it('should be able to update Picture instance if signed in', function(done) {
 		agent.post('/auth/signin')
@@ -151,6 +188,7 @@ describe('Picture CRUD tests', function() {
                     .set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', 'Picture Title')
+                    .field('tags', picture.tags)
                     .attach('file', __dirname + '/img/noel.jpg')
 					.expect(200)
 					.end(function(pictureSaveErr, pictureSaveRes) {

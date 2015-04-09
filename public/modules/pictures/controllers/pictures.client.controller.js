@@ -7,6 +7,14 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 	function($scope, $stateParams, $location, $upload, $timeout, Authentication, Pictures) {
 		$scope.authentication = Authentication;
 
+
+        //List of unique Tags for preemptive text
+        $scope.loadTags = function(query) {
+            console.log('LOADTAGS HIT! ' + query);
+            //$scope.loadTags = Pictures.query();
+        };
+
+
         //preload picture and show preview thumb
         $scope.generateThumb = function(file) {
             if (file) {
@@ -27,13 +35,16 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 
         // save picture to server
         $scope.uploadPic = function(files, picName){
-            console.log('UPLOAD GEHIT!: ' + picName);
+            console.log('UPLOAD GEHIT!: ' + $scope.tags.length);
             if (files && files.length) {
+                if($scope.tags.length && $scope.tags.length < 4) {
+
+                    var tags = $scope.tags;
                     var file = files[0];
-                console.log(file);
+
                     $upload.upload({
                         url: '/pictures',
-                        fields: {'picTitle': picName},
+                        fields: {'picTitle': picName, 'tags': tags},
                         file: file
                     }).progress(function (evt) {
                         var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
@@ -42,6 +53,7 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
                         console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
                         $location.path('pictures');
                     });
+                }
             }
         };
 
