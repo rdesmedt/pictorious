@@ -161,18 +161,31 @@ exports.hasAuthorization = function(req, res, next) {
  * List of Tags
  */
 exports.tagList = function(req, res) {
-    console.log('TAGLIST SEARCH HIT');
+    var query = '';
+    var tagList = [];
+
+    _.forEach(req.query, function(item, n){
+        query = query + item;
+    });
+
+    console.log('TAGLIST SEARCH HIT: ' + query);
     Tag
-        .find()
-        .sort('-created')
+        .find({}, {'_id': 0})
+        .where('tag').regex(new RegExp(query, 'i'))
+        .sort('tag')
+        .select('tag')
         .exec(function(err, tags) {
             if (err) {
                 return res.status(400).send({
                     message: errorHandler.getErrorMessage(err)
                 });
             } else {
-                console.log('LIST OF TAGS: ' + tags);
-                res.jsonp(tags);
+
+                _.forEach(tags, function(item, n){
+                    tagList.push(item.tag);
+                });
+                console.log(tagList);
+                res.jsonp(tagList);
             }
         });
 };
