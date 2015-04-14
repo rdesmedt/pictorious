@@ -9,15 +9,6 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 
         //List of unique Tags for preemptive text
         $scope.loadTags = function(query) {
-            /*console.log('LOADTAGS HIT! ' + query + ' - ' + $scope.tags.length + ' - ' + $scope.tags);
-            if ($scope.tags.length < '1'){
-                $scope.tags = $http({
-                    url: '/pictureTags',
-                    method: 'GET',
-                    params: query
-                });
-                console.log('TAGLIST REQUEST: ' + $scope.tags);
-            }*/
         return $http({
             url: '/pictureTags',
             method: 'GET',

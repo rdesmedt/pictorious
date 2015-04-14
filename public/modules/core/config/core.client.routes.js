@@ -12,5 +12,6 @@ angular.module('core').config(['$stateProvider', '$urlRouterProvider',
 			url: '/',
 			templateUrl: 'modules/core/views/home.client.view.html'
 		});
+
 	}
 ]);

@@ -32,13 +32,11 @@ exports.create = function(req, res) {
                                 if (err) {
                                     console.log(err);
                                 } else {
-                                    console.log('Save: ' + tg);
                                     picture.tags.push(tg._id);
                                     return callback(false);
                                 }
                             });
                         } else {
-                            console.log('Tag found: ' + tag);
                             picture.tags.push(tag._id);
                             return callback(true);
                         }
@@ -47,7 +45,6 @@ exports.create = function(req, res) {
                 });
     },
     function(results){
-        console.log('PICTURE TAG IDS: ' + picture.tags);
 
         picture.name = req.body.picTitle;
         picture.path = req.files.file.path;
@@ -125,7 +122,6 @@ exports.list = function(req, res) {
 				message: errorHandler.getErrorMessage(err)
 			});
 		} else {
-            console.log('LIST OF PICTURES: ' + pictures);
 			res.jsonp(pictures);
 		}
 	});
@@ -189,3 +185,54 @@ exports.tagList = function(req, res) {
             }
         });
 };
+
+/**
+ * Picture list by tags
+ */
+exports.byTag = function(req,res,tag){
+    var query = '';
+    var tagID = '';
+        _.forEach(req.query, function(item, n){
+        query = query + item;
+    });
+
+    async.parallel([function(callback){
+        Tag
+            .find()
+            .where('tag').equals(query)
+            .select('_id')
+            .exec(function(err, tag){
+                if (err) {
+                    return res.status(400).send({
+                        message: errorHandler.getErrorMessage(err)
+                    });
+                } else {
+                    tagID = tag;
+                }
+                callback();
+            });
+    }],function(err){
+        if (err){
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        }else{
+            Picture
+                .find()
+                .sort('-created')
+                .where('tags').in(tagID)
+                .populate('user tags', 'displayName tag')
+                .exec(function(err, pictures) {
+                    if (err) {
+                        return res.status(400).send({
+                            message: errorHandler.getErrorMessage(err)
+                        });
+                    } else {
+                        res.jsonp(pictures);
+                    }
+                });
+        }
+    });
+
+};
+

@@ -73,33 +73,25 @@ module.exports = function(db) {
 		// Disable views cache
 		app.set('view cache', false);
 
-        //get date parameter for path
-        var todayDev = new Date();
-        var pathPictureDev = todayDev.getFullYear() + '/' +
-                        ('0' + (todayDev.getMonth()+1)).slice(-2) + '/' +
-                        ('0' + todayDev.getDate()).slice(-2) + '/';
 
-        // Multer initialisation on development folder
+        // Multer initialisation for file upload Development
         app.use(multer({
             dest: './dataDisk/devPictures/',
             rename: function (fieldname, filename){
                 return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
-            }}));//pathpicturedev pas setten bij upload
+            }}));
+
 	} else if (process.env.NODE_ENV === 'production') {
 		app.locals.cache = 'memory';
+
         // Multer initialisation on production folder
-
-        //get date parameter for path
-        var today = new Date();
-        var pathPicture = today.getFullYear() + '/' +
-            ('0' + (today.getMonth()+1)).slice(-2) + '/' +
-            ('0' + today.getDate()).slice(-2) + '/';
-
         app.use(multer({ dest: './dataDisk/pictures/',
             rename: function (fieldname, filename){
                 return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
             }}));
+
 	} else if (process.env.NODE_ENV === 'test'){
+        // Multer initialisation on test folder
         app.use(multer({ dest: './dataDisk/testPictures/',
             rename: function (fieldname, filename){
                 return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();

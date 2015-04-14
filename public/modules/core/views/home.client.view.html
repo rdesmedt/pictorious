@@ -14,12 +14,22 @@
         <div class="row" data-ng-show="authentication.user">
             <p>Welcome <span data-ng-bind="authentication.user.displayName"></span></p>
         </div>
+        <form name="picTagSearchForm" class="form-horizontal">
+            <div class="input-group" style="max-width: 300px">
+                <tags-input ng-model="tags" display-property="tag" name="tag" min-tags="1" max-tags="1">
+                    <auto-complete source="loadTags($query)" min-length="2"></auto-complete>
+                </tags-input>
+                <div class="input-group-btn">
+                    <button class="btn btn-default" type="submit" ng-click="findTagPictures(tag)"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
+        </form>
 	</div>
     <div class="list-group">
-        <a data-ng-repeat="picture in pictures" data-ng-href="#!/pictures/{{picture._id}}" class="list-group-item">
+        <a data-ng-repeat="picture in pictures track by $index" data-ng-href="#!/pictures/{{picture._id}}" class="list-group-item">
             <small class="list-group-item-text">
                 Posted on
-                <span data-ng-bind="picture.created | date:'medium'"></span>
+                <span data-ng-bind="picture.created | date:'mediumDate'"></span>
                 by
                 <span data-ng-bind="picture.user.displayName"></span><br>
                 Tags:
