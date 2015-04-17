@@ -65,7 +65,7 @@ describe('Picture CRUD tests', function() {
 
 				// Save a new Picture
 				agent.post('/pictures')
-                    .set('Connection', 'keep alive')
+                    //.set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', 'Picture Title')
                     .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
@@ -97,7 +97,7 @@ describe('Picture CRUD tests', function() {
 
 	it('should not be able to save Picture instance if not logged in', function(done) {
 		agent.post('/pictures')
-            .set('Connection', 'keep alive')
+            //.set('Connection', 'keep alive')
             .set('Content-Type', 'application/x-www-form-urlencoded')
             .field('picTitle', 'Picture Title')
             .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
@@ -125,7 +125,7 @@ describe('Picture CRUD tests', function() {
 
 				// Save a new Picture
 				agent.post('/pictures')
-                    .set('Connection', 'keep alive')
+                    //.set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', picture.name)
                     .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
@@ -157,7 +157,7 @@ describe('Picture CRUD tests', function() {
 
                 // Save a new Picture
                 agent.post('/pictures')
-                    .set('Connection', 'keep alive')
+                    //.set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', picture.name)
                     .field('tags', '')
@@ -186,7 +186,7 @@ describe('Picture CRUD tests', function() {
 
 				// Save a new Picture
 				agent.post('/pictures')
-                    .set('Connection', 'keep alive')
+                    //.set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', 'Picture Title')
                     .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
@@ -268,7 +268,7 @@ describe('Picture CRUD tests', function() {
 
 				// Save a new Picture
 				agent.post('/pictures')
-                    .set('Connection', 'keep alive')
+                    //.set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', 'Picture Title')
                     .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
