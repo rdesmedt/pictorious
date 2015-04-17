@@ -141,7 +141,8 @@ module.exports = function (grunt) {
                 src: watchFiles.mochaTests,
                 options: {
                     reporter: 'mocha-bamboo-reporter',
-                    require: 'server.js'
+                    require: 'server.js',
+                    timeout: 15000
                 }
             }
         },
