@@ -14,6 +14,14 @@ var mongoose = require('mongoose'),
  * Create a Picture
  */
 exports.create = function(req, res) {
+
+    if(!req.body.tags){
+        console.log('NO TAGS!');
+        return res.status(400).send({
+            message: 'Include at least one tag'
+        });
+    }
+
     var picture = new Picture();
 
     var tags = JSON.parse(req.body.tags);
@@ -138,7 +146,6 @@ exports.pictureByID = function(req, res, next, id) {
             if (err) return next(err);
             if (! picture) return next(new Error('Failed to load Picture ' + id));
             req.picture = picture ;
-            console.log('PICTURE DETAIL: ' + picture);
             next();
 	});
 };
@@ -164,7 +171,6 @@ exports.tagList = function(req, res) {
         query = query + item;
     });
 
-    console.log('TAGLIST SEARCH HIT: ' + query);
     Tag
         .find({}, {'_id': 0})
         .where('tag').regex(new RegExp(query, 'i'))

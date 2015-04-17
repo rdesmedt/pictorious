@@ -6,12 +6,13 @@ var should = require('should'),
 	mongoose = require('mongoose'),
 	User = mongoose.model('User'),
 	Picture = mongoose.model('Picture'),
+    Tag = mongoose.model('Tag'),
 	agent = request.agent(app);
 
 /**
  * Globals
  */
-var credentials, user, picture, boundary;
+var credentials, user, picture, tags, boundary;
 
 /**
  * Picture routes tests
@@ -40,9 +41,10 @@ describe('Picture CRUD tests', function() {
 		user.save(function() {
 			picture = {
 				name: 'Picture Title',
-                path: __dirname + '/img/noel.jpg',
-                tags: ['tag1','tag2','tag3']
+                path: __dirname + '/img/noel.jpg'
 			};
+
+
 
 			done();
 		});
@@ -66,7 +68,7 @@ describe('Picture CRUD tests', function() {
                     .set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', 'Picture Title')
-                    .field('tags', picture.tags)
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
                     .attach('file', __dirname + '/img/noel.jpg')
 					.end(function(pictureSaveErr, pictureSaveRes) {
 						// Handle Picture save error
@@ -98,7 +100,7 @@ describe('Picture CRUD tests', function() {
             .set('Connection', 'keep alive')
             .set('Content-Type', 'application/x-www-form-urlencoded')
             .field('picTitle', 'Picture Title')
-            .field('tags', picture.tags)
+            .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
             .attach('file', __dirname + '/img/noel.jpg')
             .expect(401)
 			.end(function(pictureSaveErr, pictureSaveRes) {
@@ -125,8 +127,8 @@ describe('Picture CRUD tests', function() {
 				agent.post('/pictures')
                     .set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
-                    .field('picTitle', '')
-                    .field('tags', picture.tags)
+                    .field('picTitle', picture.name)
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
                     .attach('file', __dirname + '/img/noel.jpg')
 					.expect(400)
 					.end(function(pictureSaveErr, pictureSaveRes) {
@@ -142,7 +144,6 @@ describe('Picture CRUD tests', function() {
     it('should not be able to save Picture instance if no tag is provided', function(done) {
         // Invalidate name field
         picture.name = 'Picture Title';
-        picture.tags = [];
 
         agent.post('/auth/signin')
             .send(credentials)
@@ -158,13 +159,13 @@ describe('Picture CRUD tests', function() {
                 agent.post('/pictures')
                     .set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
-                    .field('picTitle', '')
-                    .field('tags', picture.tags)
+                    .field('picTitle', picture.name)
+                    .field('tags', '')
                     .attach('file', __dirname + '/img/noel.jpg')
                     .expect(400)
                     .end(function(pictureSaveErr, pictureSaveRes) {
                         // Set message assertion
-                        (pictureSaveRes.body.message).should.match('Please fill Picture name');
+                        (pictureSaveRes.body.message).should.match('Include at least one tag');
 
                         // Handle Picture save error
                         done(pictureSaveErr);
@@ -188,7 +189,7 @@ describe('Picture CRUD tests', function() {
                     .set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', 'Picture Title')
-                    .field('tags', picture.tags)
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
                     .attach('file', __dirname + '/img/noel.jpg')
 					.expect(200)
 					.end(function(pictureSaveErr, pictureSaveRes) {
@@ -270,6 +271,7 @@ describe('Picture CRUD tests', function() {
                     .set('Connection', 'keep alive')
                     .set('Content-Type', 'application/x-www-form-urlencoded')
                     .field('picTitle', 'Picture Title')
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
                     .attach('file', __dirname + '/img/noel.jpg')
 					.expect(200)
 					.end(function(pictureSaveErr, pictureSaveRes) {
@@ -320,6 +322,7 @@ describe('Picture CRUD tests', function() {
 	afterEach(function(done) {
 		User.remove().exec();
 		Picture.remove().exec();
+        Tag.remove().exec();
 		done();
 	});
 

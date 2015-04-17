@@ -5,13 +5,15 @@
  */
 var should = require('should'),
 	mongoose = require('mongoose'),
+    async = require('async'),
 	User = mongoose.model('User'),
-	Picture = mongoose.model('Picture');
+	Picture = mongoose.model('Picture'),
+    Tag = mongoose.model('Tag');
 
 /**
  * Globals
  */
-var user, picture;
+var user, picture, tag1, tag2, tag3;
 
 /**
  * Unit tests
@@ -28,7 +30,6 @@ describe('Picture Model Unit Tests:', function() {
 			picture = new Picture({
 				name: 'Picture Name',
                 path: '/year/month/day/hash.jpg',
-                tags: ['tag1', 'tag2', 'tag3'],
 				user: user
 			});
 
@@ -38,10 +39,41 @@ describe('Picture Model Unit Tests:', function() {
 
 	describe('Method Save', function() {
 		it('should be able to save without problems', function(done) {
-			return picture.save(function(err) {
-				should.not.exist(err);
-				done();
-			});
+            var tags = [{ name: 'tag1'},{ name: 'tag2'},{ name: 'tag3'}];
+
+            async.filter(tags,function(item, callback){
+                    var tg = new Tag();
+                    tg.tag = item.name;
+                    Tag.findOne({
+                            tag: tg.tag
+                        },
+                        function(err, tag){
+                            if (!err){
+                                if (!tag){
+                                    tg.save(function (err) {
+                                        if (err) {
+                                            console.log(err);
+                                        } else {
+                                            picture.tags.push(tg._id);
+                                            return callback(false);
+                                        }
+                                    });
+                                } else {
+                                    picture.tags.push(tag._id);
+                                    return callback(true);
+                                }
+                            }
+
+                        });
+                },
+                function(results){
+
+                    return picture.save(function(err) {
+                        should.not.exist(err);
+                        done();
+                    });
+                });
+
 		});
 
 		it('should be able to show an error when try to save without name', function(done) { 
@@ -62,7 +94,7 @@ describe('Picture Model Unit Tests:', function() {
                 done();
             });
         });
-
+        /*
         it('should be able to show an error when try to save without tag', function(done) {
             picture.tags = [];
             picture.path = '/year/month/day/hash.jpg';
@@ -72,6 +104,7 @@ describe('Picture Model Unit Tests:', function() {
                 done();
             });
         });
+        */
 	});
 
 	afterEach(function(done) { 

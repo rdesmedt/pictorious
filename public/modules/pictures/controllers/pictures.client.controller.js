@@ -37,7 +37,6 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 
         // save picture to server
         $scope.uploadPic = function(files, picName){
-            console.log('UPLOAD GEHIT!: ' + $scope.tags.length);
             if (files && files.length) {
                 if($scope.tags.length && $scope.tags.length < 4) {
 
