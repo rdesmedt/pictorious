@@ -105,6 +105,24 @@ describe('Picture Model Unit Tests:', function() {
             });
         });
         */
+        it('should be able to update a picture with an upvote', function(done){
+            picture.upvote.user = user;
+            picture.upvote.date = Date.now();
+
+            return picture.update(function(err){
+                should.not.exist(err);
+                done();
+            });
+        });
+        it('should be able to update a picture with an downvote', function(done){
+            picture.downvote.user = user;
+            picture.downvote.date = Date.now();
+
+            return picture.update(function(err){
+                should.not.exist(err);
+                done();
+            });
+        });
 	});
 
 	afterEach(function(done) { 

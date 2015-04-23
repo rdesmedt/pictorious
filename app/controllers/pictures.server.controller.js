@@ -16,7 +16,6 @@ var mongoose = require('mongoose'),
 exports.create = function(req, res) {
 
     if(!req.body.tags){
-        console.log('NO TAGS!');
         return res.status(400).send({
             message: 'Include at least one tag'
         });
@@ -138,7 +137,7 @@ exports.list = function(req, res) {
 /**
  * Picture middleware
  */
-exports.pictureByID = function(req, res, next, id) { 
+exports.pictureByID = function(req, res, next, id) {
 	Picture
         .findById(id)
         .populate('user tags', 'displayName tag')
@@ -239,6 +238,102 @@ exports.byTag = function(req,res,tag){
                 });
         }
     });
+};
+
+/**
+ * upvote a picture
+ */
+exports.upvote = function(req, res){
+    var picture = req.picture ;
+    var upvote = { user: req.user._id, date: Date.now()};
+
+
+    async.parallel([function(callback){
+        Picture
+            .find(picture)
+            .exec(function(err, pictureRes){
+                if (err) {
+                    return res.status(400).send({
+                        message: errorHandler.getErrorMessage(err)
+                    });
+                } else{
+                    _.forEach(picture.upvote, function(item, n){
+                        if(JSON.stringify(item.user) === JSON.stringify(upvote.user)){
+                            return res.status(401).send({
+                                message: 'Only one upvote per user'
+                            });
+                        }
+                    });
+                }
+                picture.upvote.push(upvote);
+                callback();
+            });
+    }],function(err){
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            picture.save(function (err) {
+                if (err) {
+                    return res.status(400).send({
+                        message: errorHandler.getErrorMessage(err)
+                    });
+                } else if (res.statusCode === 200) {
+                    res.jsonp(picture);
+                }
+            });
+        }
+    });
+
 
 };
 
+/**
+ * downvote a picture
+ */
+exports.downvote = function(req, res){
+    var picture = req.picture ;
+    var downvote = { user: req.user._id, date: Date.now()};
+
+
+    async.parallel([function(callback){
+        Picture
+            .find(picture)
+            .exec(function(err, pictureRes){
+                if (err) {
+                    return res.status(400).send({
+                        message: errorHandler.getErrorMessage(err)
+                    });
+                } else{
+                    _.forEach(picture.downvote, function(item, n){
+                        if(JSON.stringify(item.user) === JSON.stringify(downvote.user)){
+                            return res.status(401).send({
+                                message: 'Only one downvote per user'
+                            });
+                        }
+                    });
+                }
+                picture.downvote.push(downvote);
+                callback();
+            });
+    }],function(err){
+        if (err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        } else {
+            picture.save(function (err) {
+                if (err) {
+                    return res.status(400).send({
+                        message: errorHandler.getErrorMessage(err)
+                    });
+                } else if (res.statusCode === 200) {
+                    res.jsonp(picture);
+                }
+            });
+        }
+    });
+
+
+};

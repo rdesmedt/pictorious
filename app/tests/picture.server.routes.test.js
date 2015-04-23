@@ -4,6 +4,7 @@ var should = require('should'),
 	request = require('supertest'),
 	app = require('../../server'),
 	mongoose = require('mongoose'),
+    async = require('async'),
 	User = mongoose.model('User'),
 	Picture = mongoose.model('Picture'),
     Tag = mongoose.model('Tag'),
@@ -72,7 +73,6 @@ describe('Picture CRUD tests', function() {
                     .attach('file', __dirname + '/img/noel.jpg')
 					.end(function(pictureSaveErr, pictureSaveRes) {
 						// Handle Picture save error
-                        console.log(pictureSaveErr);
 						if (pictureSaveErr) done(pictureSaveErr);
 
 						// Get a list of Pictures
@@ -318,6 +318,206 @@ describe('Picture CRUD tests', function() {
 
 		});
 	});
+
+    it('should be able to update Picture with upvote if signed in', function(done) {
+        agent.post('/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function(signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) done(signinErr);
+
+                // Get the userId
+                var userId = user.id;
+
+                // Save a new Picture
+                agent.post('/pictures')
+                    //.set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
+                    .attach('file', __dirname + '/img/noel.jpg')
+                    .expect(200)
+                    .end(function(pictureSaveErr, pictureSaveRes) {
+                        // Handle Picture save error
+                        if (pictureSaveErr) done(pictureSaveErr);
+
+
+                        // cast upvote
+                        agent.put('/pictures/' + pictureSaveRes.body._id + '/upvote')
+                            .send(picture)
+                            .expect(200)
+                            .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                // Handle Picture update error
+                                if (pictureUpdateErr) done(pictureUpdateErr);
+
+                                // Set assertions
+                                (pictureUpdateRes.body.upvote[0].user).should.equal(user.id);
+
+                                // Call the assertion callback
+                                done();
+                            });
+                    });
+            });
+    });
+
+    it('should be able to update Picture with downvote if signed in', function(done) {
+        agent.post('/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function(signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) done(signinErr);
+
+                // Get the userId
+                var userId = user.id;
+
+                // Save a new Picture
+                agent.post('/pictures')
+                    //.set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
+                    .attach('file', __dirname + '/img/noel.jpg')
+                    .expect(200)
+                    .end(function(pictureSaveErr, pictureSaveRes) {
+                        // Handle Picture save error
+                        if (pictureSaveErr) done(pictureSaveErr);
+
+
+                        // cast downvote
+                        agent.put('/pictures/' + pictureSaveRes.body._id + '/downvote')
+                            .send(picture)
+                            .expect(200)
+                            .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                // Handle Picture update error
+                                if (pictureUpdateErr) done(pictureUpdateErr);
+
+                                // Set assertions
+                                (pictureUpdateRes.body.downvote[0].user).should.equal(user.id);
+
+                                // Call the assertion callback
+                                done();
+                            });
+                    });
+            });
+    });
+
+    it('should not be able for a user to cast multiple upvotes', function(done){
+        var pictureID;
+        agent.post('/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function(signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) done(signinErr);
+
+                // Get the userId
+                var userId = user.id;
+
+                // Save a new Picture
+                agent.post('/pictures')
+                    //.set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
+                    .attach('file', __dirname + '/img/noel.jpg')
+                    .expect(200)
+                    .end(function(pictureSaveErr, pictureSaveRes) {
+                        // Handle Picture save error
+                        if (pictureSaveErr) done(pictureSaveErr);
+
+                        pictureID = pictureSaveRes.body._id;
+
+                        async.parallel([function(callback){
+                            // cast first upvote
+                            agent.put('/pictures/' + pictureID + '/upvote')
+                                .send(picture)
+                                .expect(200)
+                                .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                    // Handle Picture update error
+                                    if (pictureUpdateErr) done(pictureUpdateErr);
+
+                                    // Set assertions
+                                    (pictureUpdateRes.body.upvote[0].user).should.equal(user.id);
+                                    callback();
+                                });
+                        }], function(err){
+                            // cast second upvote that should fail
+                            agent.put('/pictures/' + pictureID + '/upvote')
+                                .send(picture)
+                                .expect(401)
+                                .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                    // Set message assertions
+                                    (pictureUpdateRes.body.message).should.match('Only one upvote per user');
+
+                                    // handle vote error
+                                    done(pictureUpdateErr);
+                                });
+                        });
+
+                    });
+
+            });
+    });
+
+    it('should not be able for a user to cast multiple downvotes', function(done){
+        var pictureID;
+        agent.post('/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function(signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) done(signinErr);
+
+                // Get the userId
+                var userId = user.id;
+
+                // Save a new Picture
+                agent.post('/pictures')
+                    //.set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
+                    .attach('file', __dirname + '/img/noel.jpg')
+                    .expect(200)
+                    .end(function(pictureSaveErr, pictureSaveRes) {
+                        // Handle Picture save error
+                        if (pictureSaveErr) done(pictureSaveErr);
+
+                        pictureID = pictureSaveRes.body._id;
+
+                        async.parallel([function(callback){
+                            // cast first downvote
+                            agent.put('/pictures/' + pictureID + '/downvote')
+                                .send(picture)
+                                .expect(200)
+                                .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                    // Handle Picture update error
+                                    if (pictureUpdateErr) done(pictureUpdateErr);
+
+                                    // Set assertions
+                                    (pictureUpdateRes.body.downvote[0].user).should.equal(user.id);
+                                    callback();
+                                });
+                        }], function(err){
+                            // cast second downvote that should fail
+                            agent.put('/pictures/' + pictureID + '/downvote')
+                                .send(picture)
+                                .expect(401)
+                                .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                    // Set message assertions
+                                    (pictureUpdateRes.body.message).should.match('Only one downvote per user');
+
+                                    // handle vote error
+                                    done(pictureUpdateErr);
+                                });
+                        });
+
+                    });
+
+            });
+    });
 
 	afterEach(function(done) {
 		User.remove().exec();
