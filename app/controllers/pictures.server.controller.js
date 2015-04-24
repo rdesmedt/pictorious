@@ -264,6 +264,11 @@ exports.upvote = function(req, res){
                             });
                         }
                     });
+                    _.forEach(picture.downvote, function(item, n){
+                        if(JSON.stringify(item.user) === JSON.stringify(upvote.user)){
+                            _.remove(picture.downvote, { user: item.user });
+                        }
+                    });
                 }
                 picture.upvote.push(upvote);
                 callback();
@@ -279,7 +284,8 @@ exports.upvote = function(req, res){
                     return res.status(400).send({
                         message: errorHandler.getErrorMessage(err)
                     });
-                } else if (res.statusCode === 200) {
+                }
+                if (res.statusCode === 200) {
                     res.jsonp(picture);
                 }
             });
@@ -295,7 +301,7 @@ exports.upvote = function(req, res){
 exports.downvote = function(req, res){
     var picture = req.picture ;
     var downvote = { user: req.user._id, date: Date.now()};
-
+    var message = '';
 
     async.parallel([function(callback){
         Picture
@@ -313,6 +319,11 @@ exports.downvote = function(req, res){
                             });
                         }
                     });
+                    _.forEach(picture.upvote, function(item, n){
+                        if(JSON.stringify(item.user) === JSON.stringify(downvote.user)){
+                            _.remove(picture.upvote, { user: item.user });
+                        }
+                    });
                 }
                 picture.downvote.push(downvote);
                 callback();
@@ -328,8 +339,10 @@ exports.downvote = function(req, res){
                     return res.status(400).send({
                         message: errorHandler.getErrorMessage(err)
                     });
-                } else if (res.statusCode === 200) {
+                }
+                if (res.statusCode === 200) {
                     res.jsonp(picture);
+
                 }
             });
         }

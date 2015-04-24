@@ -519,6 +519,124 @@ describe('Picture CRUD tests', function() {
             });
     });
 
+    it('should be able for a user to change upvote te downvote', function(done){
+        var pictureID;
+        agent.post('/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function(signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) done(signinErr);
+
+                // Get the userId
+                var userId = user.id;
+
+                // Save a new Picture
+                agent.post('/pictures')
+                    //.set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
+                    .attach('file', __dirname + '/img/noel.jpg')
+                    .expect(200)
+                    .end(function(pictureSaveErr, pictureSaveRes) {
+                        // Handle Picture save error
+                        if (pictureSaveErr) done(pictureSaveErr);
+
+                        pictureID = pictureSaveRes.body._id;
+
+                        async.parallel([function(callback){
+                            // cast upvote
+                            agent.put('/pictures/' + pictureID + '/upvote')
+                                .send(picture)
+                                .expect(200)
+                                .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                    // Handle Picture update error
+                                    if (pictureUpdateErr) done(pictureUpdateErr);
+
+                                    // Set assertions
+                                    (pictureUpdateRes.body.upvote[0].user).should.equal(user.id);
+                                    callback();
+                                });
+                        }], function(err){
+                            // change vote to downvote
+                            agent.put('/pictures/' + pictureID + '/downvote')
+                                .send(picture)
+                                .expect(200)
+                                .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                    // Set message assertions
+                                  (pictureUpdateRes.body.upvote.length).should.equal(0);
+                                  (pictureUpdateRes.body.downvote.length).should.equal(1);
+
+                                    // handle vote error
+                                    done(pictureUpdateErr);
+                                });
+                        });
+
+                    });
+
+            });
+    });
+
+    it('should be able for a user to change downvote te upvote', function(done){
+        var pictureID;
+        agent.post('/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function(signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) done(signinErr);
+
+                // Get the userId
+                var userId = user.id;
+
+                // Save a new Picture
+                agent.post('/pictures')
+                    //.set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
+                    .attach('file', __dirname + '/img/noel.jpg')
+                    .expect(200)
+                    .end(function(pictureSaveErr, pictureSaveRes) {
+                        // Handle Picture save error
+                        if (pictureSaveErr) done(pictureSaveErr);
+
+                        pictureID = pictureSaveRes.body._id;
+
+                        async.parallel([function(callback){
+                            // cast downvote
+                            agent.put('/pictures/' + pictureID + '/downvote')
+                                .send(picture)
+                                .expect(200)
+                                .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                    // Handle Picture update error
+                                    if (pictureUpdateErr) done(pictureUpdateErr);
+
+                                    // Set assertions
+                                    (pictureUpdateRes.body.downvote[0].user).should.equal(user.id);
+                                    callback();
+                                });
+                        }], function(err){
+                            // change vote to upvote
+                            agent.put('/pictures/' + pictureID + '/upvote')
+                                .send(picture)
+                                .expect(200)
+                                .end(function(pictureUpdateErr, pictureUpdateRes) {
+                                    // Set message assertions
+                                  (pictureUpdateRes.body.upvote.length).should.equal(1);
+                                  (pictureUpdateRes.body.downvote.length).should.equal(0);
+
+                                    // handle vote error
+                                    done(pictureUpdateErr);
+                                });
+                        });
+
+                    });
+
+            });
+    });
+
 	afterEach(function(done) {
 		User.remove().exec();
 		Picture.remove().exec();
