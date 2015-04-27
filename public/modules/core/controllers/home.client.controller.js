@@ -1,8 +1,8 @@
 'use strict';
 
 
-angular.module('core').controller('HomeController', ['$scope', '$http', 'Authentication', 'Pictures',
-	function($scope, $http, Authentication, Pictures) {
+angular.module('core').controller('HomeController', ['$scope', '$http', '$location', 'Authentication', 'Pictures',
+	function($scope, $http, $location, Authentication, Pictures) {
 		// This provides Authentication context.
 		$scope.authentication = Authentication;
 
@@ -50,6 +50,36 @@ angular.module('core').controller('HomeController', ['$scope', '$http', 'Authent
                         $scope.pictures = data;
                     });
             }
+        };
+
+        // Cast upvote
+        $scope.upvote = function(id) {
+            $http({
+                url: '/pictures/' + id + '/upvote',
+                method: 'PUT',
+                data: $scope.picture
+            })
+                .success(function (data) {
+
+                    console.log('SUCCESS: ' + data);
+                    $scope.pictures = data;
+                });
+
+        };
+
+        // Cast downvote
+        $scope.downvote = function(id) {
+            $http({
+                url: '/pictures/' + id + '/downvote',
+                method: 'PUT',
+                data: $scope.picture
+            })
+                .success(function (data) {
+
+                    console.log('SUCCESS: ' + data);
+                    $scope.pictures = data;
+                });
+
         };
 	}
 ]);

@@ -26,7 +26,7 @@
         </form>
 	</div>
     <div class="list-group">
-        <a data-ng-repeat="picture in pictures track by $index" data-ng-href="#!/pictures/{{picture._id}}" class="list-group-item">
+        <div data-ng-repeat="picture in pictures track by $index" class="list-group-item">
             <small class="list-group-item-text">
                 Posted on
                 <span data-ng-bind="picture.created | date:'mediumDate'"></span>
@@ -36,7 +36,12 @@
                 <span ng-repeat="tag in picture.tags">{{tag.tag}}&nbsp;</span>
             </small>
             <h4 class="list-group-item-heading" data-ng-bind="picture.name"></h4>
-            <img ng-src="/{{picture.path}}" class="img-thumbnail" style="max-width: 125px;">
-        </a>
+            <a data-ng-href="#!/pictures/{{picture._id}}">
+                <img ng-src="/{{picture.path}}" class="img-thumbnail" style="max-width: 400px;">
+            </a>
+            <p>Upvotes: {{picture.upvote.length}} - Downvotes: {{picture.downvote.length}}</p>
+            <button class="glyphicon glyphicon-hand-left" type="button" ng-click="upvote(picture._id)"></button>
+            <button class="glyphicon glyphicon-thumbs-down" type="button" ng-click="downvote(picture._id)"></button>
+        </div>
     </div>
 </section>

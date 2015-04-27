@@ -97,5 +97,6 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 				pictureId: $stateParams.pictureId
 			});
 		};
+
 	}
 ]);

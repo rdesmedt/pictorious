@@ -246,6 +246,7 @@ exports.byTag = function(req,res,tag){
 exports.upvote = function(req, res){
     var picture = req.picture ;
     var upvote = { user: req.user._id, date: Date.now()};
+    var voteExists = false;
 
 
     async.parallel([function(callback){
@@ -259,9 +260,7 @@ exports.upvote = function(req, res){
                 } else{
                     _.forEach(picture.upvote, function(item, n){
                         if(JSON.stringify(item.user) === JSON.stringify(upvote.user)){
-                            return res.status(401).send({
-                                message: 'Only one upvote per user'
-                            });
+                            voteExists = true;
                         }
                     });
                     _.forEach(picture.downvote, function(item, n){
@@ -278,15 +277,32 @@ exports.upvote = function(req, res){
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)
             });
+        }
+        if (voteExists) {
+            return res.status(400).send({
+                message: 'Only one upvote per user'
+            });
         } else {
-            picture.save(function (err) {
+            Picture.findByIdAndUpdate(picture._id, picture, function(err, pic){
                 if (err) {
                     return res.status(400).send({
                         message: errorHandler.getErrorMessage(err)
                     });
                 }
                 if (res.statusCode === 200) {
-                    res.jsonp(picture);
+                    Picture
+                        .find()
+                        .sort('-created')
+                        .populate('user tags', 'displayName tag')
+                        .exec(function(err, pictures) {
+                            if (err) {
+                                return res.status(400).send({
+                                    message: errorHandler.getErrorMessage(err)
+                                });
+                            } else {
+                                res.jsonp(pictures);
+                            }
+                        });
                 }
             });
         }
@@ -301,7 +317,7 @@ exports.upvote = function(req, res){
 exports.downvote = function(req, res){
     var picture = req.picture ;
     var downvote = { user: req.user._id, date: Date.now()};
-    var message = '';
+    var voteExists = false;
 
     async.parallel([function(callback){
         Picture
@@ -314,11 +330,10 @@ exports.downvote = function(req, res){
                 } else{
                     _.forEach(picture.downvote, function(item, n){
                         if(JSON.stringify(item.user) === JSON.stringify(downvote.user)){
-                            return res.status(401).send({
-                                message: 'Only one downvote per user'
-                            });
+                            voteExists = true;
                         }
                     });
+                    //console.log(picture.upvote[0]);
                     _.forEach(picture.upvote, function(item, n){
                         if(JSON.stringify(item.user) === JSON.stringify(downvote.user)){
                             _.remove(picture.upvote, { user: item.user });
@@ -333,16 +348,32 @@ exports.downvote = function(req, res){
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)
             });
+        } if (voteExists) {
+            return res.status(400).send({
+                message: 'Only one downvote per user'
+            });
         } else {
-            picture.save(function (err) {
+
+            Picture.findByIdAndUpdate(picture._id, picture, function(err, pic){
                 if (err) {
                     return res.status(400).send({
                         message: errorHandler.getErrorMessage(err)
                     });
                 }
                 if (res.statusCode === 200) {
-                    res.jsonp(picture);
-
+                    Picture
+                        .find()
+                        .sort('-created')
+                        .populate('user tags', 'displayName tag')
+                        .exec(function(err, pictures) {
+                            if (err) {
+                                return res.status(400).send({
+                                    message: errorHandler.getErrorMessage(err)
+                                });
+                            } else {
+                                res.jsonp(pictures);
+                            }
+                        });
                 }
             });
         }

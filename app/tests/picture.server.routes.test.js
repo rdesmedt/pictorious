@@ -352,7 +352,7 @@ describe('Picture CRUD tests', function() {
                                 if (pictureUpdateErr) done(pictureUpdateErr);
 
                                 // Set assertions
-                                (pictureUpdateRes.body.upvote[0].user).should.equal(user.id);
+                                (pictureUpdateRes.body[0].upvote[0].user).should.equal(user.id);
 
                                 // Call the assertion callback
                                 done();
@@ -394,7 +394,7 @@ describe('Picture CRUD tests', function() {
                                 if (pictureUpdateErr) done(pictureUpdateErr);
 
                                 // Set assertions
-                                (pictureUpdateRes.body.downvote[0].user).should.equal(user.id);
+                                (pictureUpdateRes.body[0].downvote[0].user).should.equal(user.id);
 
                                 // Call the assertion callback
                                 done();
@@ -439,14 +439,14 @@ describe('Picture CRUD tests', function() {
                                     if (pictureUpdateErr) done(pictureUpdateErr);
 
                                     // Set assertions
-                                    (pictureUpdateRes.body.upvote[0].user).should.equal(user.id);
+                                    (pictureUpdateRes.body[0].upvote[0].user).should.equal(user.id);
                                     callback();
                                 });
                         }], function(err){
                             // cast second upvote that should fail
                             agent.put('/pictures/' + pictureID + '/upvote')
                                 .send(picture)
-                                .expect(401)
+                                .expect(400)
                                 .end(function(pictureUpdateErr, pictureUpdateRes) {
                                     // Set message assertions
                                     (pictureUpdateRes.body.message).should.match('Only one upvote per user');
@@ -497,14 +497,14 @@ describe('Picture CRUD tests', function() {
                                     if (pictureUpdateErr) done(pictureUpdateErr);
 
                                     // Set assertions
-                                    (pictureUpdateRes.body.downvote[0].user).should.equal(user.id);
+                                    (pictureUpdateRes.body[0].downvote[0].user).should.equal(user.id);
                                     callback();
                                 });
                         }], function(err){
                             // cast second downvote that should fail
                             agent.put('/pictures/' + pictureID + '/downvote')
                                 .send(picture)
-                                .expect(401)
+                                .expect(400)
                                 .end(function(pictureUpdateErr, pictureUpdateRes) {
                                     // Set message assertions
                                     (pictureUpdateRes.body.message).should.match('Only one downvote per user');
@@ -555,7 +555,7 @@ describe('Picture CRUD tests', function() {
                                     if (pictureUpdateErr) done(pictureUpdateErr);
 
                                     // Set assertions
-                                    (pictureUpdateRes.body.upvote[0].user).should.equal(user.id);
+                                    (pictureUpdateRes.body[0].upvote[0].user).should.equal(user.id);
                                     callback();
                                 });
                         }], function(err){
@@ -565,8 +565,8 @@ describe('Picture CRUD tests', function() {
                                 .expect(200)
                                 .end(function(pictureUpdateErr, pictureUpdateRes) {
                                     // Set message assertions
-                                  (pictureUpdateRes.body.upvote.length).should.equal(0);
-                                  (pictureUpdateRes.body.downvote.length).should.equal(1);
+                                  (pictureUpdateRes.body[0].upvote.length).should.equal(0);
+                                  (pictureUpdateRes.body[0].downvote.length).should.equal(1);
 
                                     // handle vote error
                                     done(pictureUpdateErr);
@@ -614,7 +614,7 @@ describe('Picture CRUD tests', function() {
                                     if (pictureUpdateErr) done(pictureUpdateErr);
 
                                     // Set assertions
-                                    (pictureUpdateRes.body.downvote[0].user).should.equal(user.id);
+                                    (pictureUpdateRes.body[0].downvote[0].user).should.equal(user.id);
                                     callback();
                                 });
                         }], function(err){
@@ -624,8 +624,8 @@ describe('Picture CRUD tests', function() {
                                 .expect(200)
                                 .end(function(pictureUpdateErr, pictureUpdateRes) {
                                     // Set message assertions
-                                  (pictureUpdateRes.body.upvote.length).should.equal(1);
-                                  (pictureUpdateRes.body.downvote.length).should.equal(0);
+                                  (pictureUpdateRes.body[0].upvote.length).should.equal(1);
+                                  (pictureUpdateRes.body[0].downvote.length).should.equal(0);
 
                                     // handle vote error
                                     done(pictureUpdateErr);
