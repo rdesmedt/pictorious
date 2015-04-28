@@ -99,7 +99,7 @@ exports.update = function(req, res) {
 };
 
 /**
- * Delete an Picture
+ * Delete a Picture
  */
 exports.delete = function(req, res) {
 	var picture = req.picture ;
@@ -224,7 +224,7 @@ exports.byTag = function(req,res,tag){
         }else{
             Picture
                 .find()
-                .sort('-created')
+                .sort('-points')
                 .where('tags').in(tagID)
                 .populate('user tags', 'displayName tag')
                 .exec(function(err, pictures) {
@@ -273,6 +273,7 @@ exports.upvote = function(req, res){
                 callback();
             });
     }],function(err){
+        picture.points = picture.upvote.length - picture.downvote.length;
         if (err) {
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)
@@ -344,6 +345,7 @@ exports.downvote = function(req, res){
                 callback();
             });
     }],function(err){
+        picture.points = picture.upvote.length - picture.downvote.length;
         if (err) {
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)

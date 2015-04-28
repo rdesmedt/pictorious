@@ -33,7 +33,9 @@
                 by
                 <span data-ng-bind="picture.user.displayName"></span><br>
                 Tags:
-                <span ng-repeat="tag in picture.tags">{{tag.tag}}&nbsp;</span>
+                <span ng-repeat="tag in picture.tags">{{tag.tag}}&nbsp;</span><br>
+                Points:
+                <span data-ng-bind="picture.points"></span>
             </small>
             <h4 class="list-group-item-heading" data-ng-bind="picture.name"></h4>
             <a data-ng-href="#!/pictures/{{picture._id}}">

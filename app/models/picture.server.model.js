@@ -39,7 +39,11 @@ var PictureSchema = new Schema({
 	user: {
 		type: Schema.ObjectId,
 		ref: 'User'
-	}
+	},
+    points: {
+        type: Number,
+        default: 0
+    }
 });
 
 mongoose.model('Picture', PictureSchema);
