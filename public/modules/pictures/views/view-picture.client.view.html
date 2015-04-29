@@ -19,9 +19,15 @@
             <br>
             Tags:
             <span ng-repeat="tag in picture.tags">{{tag.tag}}&nbsp;</span>
+            <br>
+            Points:
+            <span data-ng-bind="picture.points"></span>
 		</em>
 	</small>
     <div>
         <img ng-src="/{{picture.path}}" class="img-thumbnail">
     </div>
+    <p>Upvotes: {{picture.upvote.length}} - Downvotes: {{picture.downvote.length}}</p>
+    <button class="glyphicon glyphicon-hand-left" ng-class="voteClass(picture.upvote, authentication.user)" ng-disabled="voteDisable(picture.upvote, authentication.user)" type="button" ng-click="upvote(picture._id)"></button>
+    <button class="glyphicon glyphicon-thumbs-down" ng-class="voteClass(picture.downvote, authentication.user)" ng-disabled="voteDisable(picture.downvote, authentication.user)" type="button" ng-click="downvote(picture._id)"></button>
 </section>

@@ -26,6 +26,12 @@ module.exports = function(app) {
     app.route('/pictures/:pictureId/downvote')
         .put(users.requiresLogin, pictures.downvote);
 
+    app.route('/pictures/:pictureId/upvoteImg')
+        .put(users.requiresLogin, pictures.upvoteImg);
+
+    app.route('/pictures/:pictureId/downvoteImg')
+        .put(users.requiresLogin, pictures.downvoteImg);
+
 	// Finish by binding the Picture middleware
 	app.param('pictureId', pictures.pictureByID);
     app.param('tag', pictures.byTag);

@@ -20,7 +20,6 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
         //preload picture and show preview thumb
         $scope.generateThumb = function(file) {
             if (file) {
-                console.log(file.type.indexOf('image'));
                 if (file.type.indexOf('image') > -1) {
                     $timeout(function() {
                         var fileReader = new FileReader();
@@ -49,9 +48,7 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
                         file: file
                     }).progress(function (evt) {
                         var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                        console.log('progress: ' + progressPercentage + '% ' + evt.config.file.name);
                     }).success(function (data, status, headers, config) {
-                        console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
                         $location.path('pictures');
                     });
                 }
@@ -98,5 +95,54 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 			});
 		};
 
+        // Cast upvote
+        $scope.upvote = function(id) {
+            $http({
+                url: '/pictures/' + id + '/upvoteImg',
+                method: 'PUT',
+                data: $scope.picture
+            })
+                .success(function (data) {
+
+                    $scope.picture = data;
+                });
+
+        };
+
+        // Cast downvote
+        $scope.downvote = function(id) {
+            $http({
+                url: '/pictures/' + id + '/downvoteImg',
+                method: 'PUT',
+                data: $scope.picture
+            })
+                .success(function (data) {
+
+                    $scope.picture = data;
+                });
+
+        };
+
+        // vote disable if casted
+        $scope.voteDisable = function(vote, user){
+            var i = null;
+            for(i = 0; vote.length > i ; i++){
+                if(vote[i].user === user._id){
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        // set class for vote buttons
+        $scope.voteClass = function(vote, user){
+            var i = null;
+            for(i = 0; vote.length > i ; i++){
+                if(vote[i].user === user._id){
+                    return 'btn-primary';
+                }
+            }
+            return '';
+        };
 	}
 ]);

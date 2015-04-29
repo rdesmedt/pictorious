@@ -315,48 +315,49 @@ exports.upvote = function(req, res){
 /**
  * downvote a picture
  */
-exports.downvote = function(req, res){
-    var picture = req.picture ;
-    var downvote = { user: req.user._id, date: Date.now()};
+exports.downvote = function(req, res) {
+    var picture = req.picture;
+    var downvote = {user: req.user._id, date: Date.now()};
     var voteExists = false;
 
-    async.parallel([function(callback){
+    async.parallel([function (callback) {
         Picture
             .find(picture)
-            .exec(function(err, pictureRes){
+            .exec(function (err, pictureRes) {
                 if (err) {
                     return res.status(400).send({
                         message: errorHandler.getErrorMessage(err)
                     });
-                } else{
-                    _.forEach(picture.downvote, function(item, n){
-                        if(JSON.stringify(item.user) === JSON.stringify(downvote.user)){
+                } else {
+                    _.forEach(picture.downvote, function (item, n) {
+                        if (JSON.stringify(item.user) === JSON.stringify(downvote.user)) {
                             voteExists = true;
                         }
                     });
-                    //console.log(picture.upvote[0]);
-                    _.forEach(picture.upvote, function(item, n){
-                        if(JSON.stringify(item.user) === JSON.stringify(downvote.user)){
-                            _.remove(picture.upvote, { user: item.user });
+                    _.forEach(picture.upvote, function (item, n) {
+                        if (JSON.stringify(item.user) === JSON.stringify(downvote.user)) {
+                            _.remove(picture.upvote, {user: item.user});
+                            return false;
                         }
                     });
                 }
                 picture.downvote.push(downvote);
                 callback();
             });
-    }],function(err){
+    }], function (err) {
         picture.points = picture.upvote.length - picture.downvote.length;
         if (err) {
             return res.status(400).send({
                 message: errorHandler.getErrorMessage(err)
             });
-        } if (voteExists) {
+        }
+        if (voteExists) {
             return res.status(400).send({
                 message: 'Only one downvote per user'
             });
         } else {
 
-            Picture.findByIdAndUpdate(picture._id, picture, function(err, pic){
+            Picture.findByIdAndUpdate(picture._id, picture, function (err, pic) {
                 if (err) {
                     return res.status(400).send({
                         message: errorHandler.getErrorMessage(err)
@@ -367,7 +368,7 @@ exports.downvote = function(req, res){
                         .find()
                         .sort('-created')
                         .populate('user tags', 'displayName tag')
-                        .exec(function(err, pictures) {
+                        .exec(function (err, pictures) {
                             if (err) {
                                 return res.status(400).send({
                                     message: errorHandler.getErrorMessage(err)
@@ -380,6 +381,126 @@ exports.downvote = function(req, res){
             });
         }
     });
-
-
 };
+
+    /**
+     * upvote a picture on image detail page
+     */
+    exports.upvoteImg = function(req, res){
+        var picture = req.picture ;
+        var upvote = { user: req.user._id, date: Date.now()};
+        var voteExists = false;
+
+
+        async.parallel([function(callback){
+            Picture
+                .find(picture)
+                .exec(function(err, pictureRes){
+                    if (err) {
+                        return res.status(400).send({
+                            message: errorHandler.getErrorMessage(err)
+                        });
+                    } else{
+                        _.forEach(picture.upvote, function(item, n){
+                            if(JSON.stringify(item.user) === JSON.stringify(upvote.user)){
+                                voteExists = true;
+                            }
+                        });
+                        _.forEach(picture.downvote, function(item, n){
+                            if(JSON.stringify(item.user) === JSON.stringify(upvote.user)){
+                                _.remove(picture.downvote, { user: item.user });
+                            }
+                        });
+                    }
+                    picture.upvote.push(upvote);
+                    callback();
+                });
+        }],function(err){
+            picture.points = picture.upvote.length - picture.downvote.length;
+            if (err) {
+                return res.status(400).send({
+                    message: errorHandler.getErrorMessage(err)
+                });
+            }
+            if (voteExists) {
+                return res.status(400).send({
+                    message: 'Only one upvote per user'
+                });
+            } else {
+                Picture.findByIdAndUpdate(picture._id, picture, function(err, pic){
+                    if (err) {
+                        return res.status(400).send({
+                            message: errorHandler.getErrorMessage(err)
+                        });
+                    }
+                    if (res.statusCode === 200) {
+                        console.log(picture);
+                        res.jsonp(picture);
+                    }
+                });
+            }
+        });
+
+
+    };
+
+    /**
+     * downvote a picture on image detail page
+     */
+    exports.downvoteImg = function(req, res) {
+        var picture = req.picture;
+        var downvote = {user: req.user._id, date: Date.now()};
+        var voteExists = false;
+
+        async.parallel([function (callback) {
+            Picture
+                .find(picture)
+                .exec(function (err, pictureRes) {
+                    if (err) {
+                        return res.status(400).send({
+                            message: errorHandler.getErrorMessage(err)
+                        });
+                    } else {
+                        _.forEach(picture.downvote, function (item, n) {
+                            if (JSON.stringify(item.user) === JSON.stringify(downvote.user)) {
+                                voteExists = true;
+                            }
+                        });
+                        //console.log(picture.upvote[0]);
+                        _.forEach(picture.upvote, function (item, n) {
+                            if (JSON.stringify(item.user) === JSON.stringify(downvote.user)) {
+                                _.remove(picture.upvote, {user: item.user});
+                            }
+                        });
+                    }
+                    picture.downvote.push(downvote);
+                    callback();
+                });
+        }], function (err) {
+            picture.points = picture.upvote.length - picture.downvote.length;
+            if (err) {
+                return res.status(400).send({
+                    message: errorHandler.getErrorMessage(err)
+                });
+            }
+            if (voteExists) {
+                return res.status(400).send({
+                    message: 'Only one downvote per user'
+                });
+            } else {
+
+                Picture.findByIdAndUpdate(picture._id, picture, function (err, pic) {
+                    if (err) {
+                        return res.status(400).send({
+                            message: errorHandler.getErrorMessage(err)
+                        });
+                    }
+                    if (res.statusCode === 200) {
+                        console.log(picture);
+                        res.jsonp(picture);
+                    }
+                });
+            }
+        });
+
+    };

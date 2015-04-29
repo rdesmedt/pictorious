@@ -13,7 +13,7 @@
                 <span ng-repeat="tag in picture.tags">{{tag.tag}}&nbsp;</span>
 			</small>
 			<h4 class="list-group-item-heading" data-ng-bind="picture.name"></h4>
-            <img ng-src="/{{picture.path}}" class="img-thumbnail" style="max-width: 400px;">
+            <img ng-src="/{{picture.path}}" class="img-thumbnail" style="max-width: 200px;">
         </a>
     </div>
     <div class="alert alert-warning text-center" data-ng-hide="!pictures.$resolved || pictures.length">
