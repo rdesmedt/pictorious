@@ -38,7 +38,6 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
         $scope.uploadPic = function(files, picName){
             if (files && files.length) {
                 if($scope.tags.length && $scope.tags.length < 4) {
-
                     var tags = $scope.tags;
                     var file = files[0];
 
@@ -84,15 +83,28 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 		};
 
 		// Find a list of Pictures
-		$scope.find = function() {
-			$scope.pictures = Pictures.query();
-		};
+        $scope.find = function() {
+            $scope.pictures = Pictures.query();
+        };
+
+        // Find a list of Pictures
+        $scope.findPicsByUser = function() {
+            $http({
+                url: '/picturesUser',
+                method: 'GET'
+            })
+                .success(function(data){
+                    $scope.pictures = data;
+                });
+
+        };
 
 		// Find existing Picture
 		$scope.findOne = function() {
 			$scope.picture = Pictures.get({ 
 				pictureId: $stateParams.pictureId
 			});
+
 		};
 
         // Cast upvote

@@ -84,18 +84,48 @@ exports.read = function(req, res) {
  */
 exports.update = function(req, res) {
 	var picture = req.picture ;
-
 	picture = _.extend(picture , req.body);
+    var tags = picture.tags;
 
-	picture.save(function(err) {
-		if (err) {
-			return res.status(400).send({
-				message: errorHandler.getErrorMessage(err)
-			});
-		} else {
-			res.jsonp(picture);
-		}
-	});
+    async.filter(tags,function(item, callback){
+            var tg = new Tag();
+            tg.tag = item.tag;
+            picture.tags = [];
+            Tag.findOne({
+                    tag: tg.tag
+                },
+                function(err, tag){
+                    if (!err){
+                        if (!tag){
+                            tg.save(function (err) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    picture.tags.push(tg._id);
+                                    return callback(false);
+                                }
+                            });
+                        } else {
+                            picture.tags.push(tag._id);
+                            return callback(true);
+                        }
+                    }
+
+                });
+        },
+        function(results) {
+            Picture.findByIdAndUpdate(picture._id, picture, function(err, pic){
+                if (err) {
+                    return res.status(400).send({
+                        message: errorHandler.getErrorMessage(err)
+                    });
+                }
+                if (res.statusCode === 200) {
+                res.jsonp(picture);
+                }
+            });
+        });
+
 };
 
 /**
@@ -132,6 +162,27 @@ exports.list = function(req, res) {
 			res.jsonp(pictures);
 		}
 	});
+};
+
+/**
+ * List of Pictures
+ */
+exports.listByUser = function(req, res) {
+    var query = req.user;
+    Picture
+        .find()
+        .where('user').equals(query)
+        .sort('-created')
+        .populate('user tags', 'displayName tag')
+        .exec(function(err, pictures) {
+            if (err) {
+                return res.status(400).send({
+                    message: errorHandler.getErrorMessage(err)
+                });
+            } else {
+                res.jsonp(pictures);
+            }
+        });
 };
 
 /**
@@ -185,7 +236,6 @@ exports.tagList = function(req, res) {
                 _.forEach(tags, function(item, n){
                     tagList.push(item.tag);
                 });
-                console.log(tagList);
                 res.jsonp(tagList);
             }
         });
@@ -434,7 +484,6 @@ exports.downvote = function(req, res) {
                         });
                     }
                     if (res.statusCode === 200) {
-                        console.log(picture);
                         res.jsonp(picture);
                     }
                 });
@@ -466,7 +515,6 @@ exports.downvote = function(req, res) {
                                 voteExists = true;
                             }
                         });
-                        //console.log(picture.upvote[0]);
                         _.forEach(picture.upvote, function (item, n) {
                             if (JSON.stringify(item.user) === JSON.stringify(downvote.user)) {
                                 _.remove(picture.upvote, {user: item.user});
@@ -496,7 +544,6 @@ exports.downvote = function(req, res) {
                         });
                     }
                     if (res.statusCode === 200) {
-                        console.log(picture);
                         res.jsonp(picture);
                     }
                 });

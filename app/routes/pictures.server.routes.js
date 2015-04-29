@@ -9,6 +9,9 @@ module.exports = function(app) {
 		.get(pictures.list)
 		.post(users.requiresLogin, pictures.create);
 
+    app.route('/picturesUser')
+        .get(users.requiresLogin, pictures.listByUser);
+
     app.route('/pictureTags')
         .get(pictures.tagList);
 
