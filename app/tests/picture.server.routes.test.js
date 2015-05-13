@@ -8,6 +8,7 @@ var should = require('should'),
 	User = mongoose.model('User'),
 	Picture = mongoose.model('Picture'),
     Tag = mongoose.model('Tag'),
+    Comment = mongoose.model('Comment'),
 	agent = request.agent(app);
 
 /**
@@ -634,6 +635,57 @@ describe('Picture CRUD tests', function() {
 
                     });
 
+            });
+    });
+
+    it('should be able for a user to post a comment', function(done) {
+        var pictureID;
+
+        agent.post('/auth/signin')
+            .send(credentials)
+            .expect(200)
+            .end(function (signinErr, signinRes) {
+                // Handle signin error
+                if (signinErr) done(signinErr);
+
+                // Get the userId
+                var userId = user.id;
+
+                // Save a new Picture
+                agent.post('/pictures')
+                    //.set('Connection', 'keep alive')
+                    .set('Content-Type', 'application/x-www-form-urlencoded')
+                    .field('picTitle', 'Picture Title')
+                    .field('tags', '[{"name":"tag1"},{"name":"tag2"},{"name":"tag3"}]')
+                    .attach('file', __dirname + '/img/noel.jpg')
+                    .expect(200)
+                    .end(function (pictureSaveErr, pictureSaveRes) {
+                        // Handle Picture save error
+                        if (pictureSaveErr) done(pictureSaveErr);
+
+                        pictureID = pictureSaveRes.body._id;
+
+                        agent.put('/pictures/' + pictureID + '/comment')
+                            .send(picture)
+                            .field('comment', 'This is a comment!')
+                            .expect(200)
+                            .end(function (pictureUpdateErr, pictureUpdateRes) {
+                                // Handle Picture save error
+                                if (pictureUpdateErr) done(pictureUpdateErr);
+
+                                Comment.findById(pictureUpdateRes.body.comments[0]._id, function(err, comment){
+                                    if(err){
+                                        done(err);
+                                    }
+
+                                    (comment.comment).should.equal('This is a comment!');
+
+                                });
+
+                                done();
+                            });
+
+                    });
             });
     });
 

@@ -43,7 +43,8 @@ var PictureSchema = new Schema({
     points: {
         type: Number,
         default: 0
-    }
+    },
+    comments: [{ type: Schema.ObjectId, ref: 'Comment'}]
 });
 
 mongoose.model('Picture', PictureSchema);

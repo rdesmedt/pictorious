@@ -2,9 +2,9 @@
 
 // Pictures controller
 angular.module('pictures').controller('PicturesController', ['$scope', '$stateParams', '$http',
-                                                             '$location', '$upload', '$timeout', 'Authentication',
+                                                             '$location', '$upload', '$timeout', '$window', 'Authentication',
                                                              'Pictures',
-	function($scope, $stateParams, $http, $location, $upload, $timeout, Authentication, Pictures) {
+	function($scope, $stateParams, $http, $location, $upload, $timeout, $window, Authentication, Pictures) {
 		$scope.authentication = Authentication;
 
         //List of unique Tags for preemptive text
@@ -56,19 +56,21 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
 
 		// Remove existing Picture
 		$scope.remove = function(picture) {
-			if ( picture ) { 
-				picture.$remove();
+			if($window.confirm('Are you sure')) {
+                if (picture) {
+                    picture.$remove();
 
-				for (var i in $scope.pictures) {
-					if ($scope.pictures [i] === picture) {
-						$scope.pictures.splice(i, 1);
-					}
-				}
-			} else {
-				$scope.picture.$remove(function() {
-					$location.path('pictures');
-				});
-			}
+                    for (var i in $scope.pictures) {
+                        if ($scope.pictures [i] === picture) {
+                            $scope.pictures.splice(i, 1);
+                        }
+                    }
+                } else {
+                    $scope.picture.$remove(function () {
+                        $location.path('pictures');
+                    });
+                }
+            }
 		};
 
 		// Update existing Picture
@@ -155,6 +157,22 @@ angular.module('pictures').controller('PicturesController', ['$scope', '$statePa
                 }
             }
             return '';
+        };
+
+        $scope.postComment = function (id, comment){
+
+            var commentData = {'comment': comment};
+            console.log('COMMENT POST: ' + id + ' - ' + comment);
+            $http({
+                url: '/pictures/' + id + '/comment',
+                method: 'PUT',
+                data: commentData
+            })
+                .success(function (data){
+                   console.log('SUCCESS: ' + data);
+                    $scope.picture = data;
+                    $scope.comment = null;
+                });
         };
 	}
 ]);

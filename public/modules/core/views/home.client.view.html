@@ -16,7 +16,7 @@
         </div>
         <form name="picTagSearchForm" class="form-horizontal">
             <div class="input-group" style="max-width: 300px">
-                <tags-input ng-model="tags" display-property="tag" name="tag" min-tags="1" max-tags="1">
+                <tags-input ng-model="tags" display-property="tag" name="tag" ng addOnSpace="true" min-tags="1" max-tags="1">
                     <auto-complete source="loadTags($query)" min-length="2"></auto-complete>
                 </tags-input>
                 <div class="input-group-btn">
